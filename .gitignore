@@ -1,0 +1,54 @@
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# Generated Models Directory
+models/
+
+# OpenSCAD: agent-generated outputs (gemini/ and copilot/ subfolders)
+# STL exports
+*/gemini/*.stl
+*/copilot/*.stl
+# Render previews (named model_preview_*.png by shared scripts)
+*/gemini/model_preview_*.png
+*/copilot/model_preview_*.png
+# Iteration history snapshots
+*/gemini/history/
+*/copilot/history/
+# Temporary debug / highlight files (must be deleted after render, but guard here too)
+*/gemini/debug.scad
+*/copilot/debug.scad
+*/gemini/*.highlight.scad
+*/copilot/*.highlight.scad
+
+# Other OpenSCAD output formats (global — unlikely to be committed intentionally)
+*.3mf
+*.amf
+*.gcode
+*.gcode.gz
+
+# Project runtime / local data
+# model_log.json is local metrics only — never commit
+*/gemini/model_log.json
+*/copilot/model_log.json
+*.local
+*.log
+
+# Python / Node / build artifacts
+__pycache__/
+node_modules/
+.dist/
+dist/
+build/
+coverage/
+
+# References folder content (large external docs, not tracked)
+References/

@@ -1,122 +1,111 @@
 ---
 name: openscad-designer
-description: Erstellt, validiert und rendert parametrische 3D-Modelle mit OpenSCAD. Speichert jedes Modell in einem eigenen Unterordner.
+description: Creates, validates, renders, and slices parametric 3D models with OpenSCAD. Saves each model in its dedicated subfolder and executes FDM printability audits.
 ---
 
 # OpenSCAD Expert & Slicing-Aware Designer Skill
 
-Du bist ein Experte für parametrisches 3D-Design und FDM-3D-Druck mit OpenSCAD. Dein Ziel ist es, saubere, druckbare, stabile und supportfreie `.scad`-Dateien zu erstellen.
+You are an expert in parametric 3D design and FDM 3D printing using OpenSCAD. Your goal is to create clean, 100% printable, structurally sound, and support-free `.scad` files.
 
-## Referenzen & Bibliotheken
-- Lies bei Aufgaben mit Schrauben, Elektronik, Toleranzen oder Standard-Passungen immer zuerst die Datei `libraries.md` im selben Skill-Ordner aus.
+---
 
-## Voraussetzungen / System-Check
-**CLI & System-Check:**
-   - Gehe davon aus, OpenSCAD ist auf dem System bereits installiert.
-   - Verwende für alle Render-Befehle bevorzugt das Pfad-Kürzel `openscad`.
-   - Falls der Befehl `openscad` im Terminal fehlschlägt ('not recognized'), nutze direkt den absoluten Pfad zur Executable:
-     - **Windows:** `"C:\Program Files\OpenSCAD\openscad.exe"` (oder `"%ProgramFiles%\OpenSCAD\openscad.exe"`)
-     - **macOS:** `/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD`
-     - **Linux:** `/usr/bin/openscad`
-   - **Falls sonst nichts funktioniert, Frage nach, ob es installiert werden soll, z.B. per `winget`.** 
+## 📚 References & Core Instructions
 
-## Arbeitsablauf (Vibecode & Render Loop)
-Wenn der Nutzer ein 3D-Modell anfordert:
-1. **Projekt-Ordner erstellen:**
-   - Bestimme einen prägnanten Ordnernamen (z. B. `controller-holder`).
-   - Lege den Projektordner an und schreibe alle Ausgabedateien dort hinein.
+- **FDM Printability Quality Gate**: Before finalizing any code, you MUST execute the quality gate defined in `.agents/skills/fdm-printability-auditor/SKILL.md`.
+- **Workflow & Rules**: Always follow the modeling rules and Customizer standards defined in `ai/shared/instructions/openscad-workflow.md`.
+- **Hardware & Dimensions**: Read `ai/shared/instructions/libraries.md` for standard hardware tolerances (M3, M4, M8, ESP32, bearings).
 
-2. **Maße nachschlagen & Code generieren:**
-   - Erstelle `<projekt-ordner>/model.scad` mit sauberen Variablen ganz oben.
-   - Füge im Quellcode im Header eine kleine, dauerhafte AI- und Projekt-Kennzeichnung ein, z. B.:
-     ```scad
-     // AI Agent: openscad-designer
-     // Project: <projekt-ordner>
-     // Date: YYYY-MM-DD
+---
+
+## 🛠 Prerequisites & System CLI
+
+- Assume OpenSCAD is installed on the system.
+- If `openscad` is not in the system PATH, use the absolute path:
+  - **Windows**: `& "C:\Program Files\OpenSCAD\openscad.com"` (use `openscad.com` for synchronous CLI calls).
+  - **macOS**: `/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD`
+  - **Linux**: `/usr/bin/openscad`
+- **Slicer CLI Engine (Optional for Empirical Metrics)**:
+  - Dynamically detect available Slicers on PATH (`prusa-slicer-console`, `prusa-slicer`, `orca-slicer`, `bambu-studio`, `curaengine`).
+  - Common fallback paths:
+    - **Windows**: `"C:\Program Files\Prusa3D\PrusaSlicer\prusa-slicer-console.exe"`, `"C:\Program Files\Tools\PrusaSlicer\prusa-slicer-console.exe"`, `"C:\Program Files\OrcaSlicer\orca-slicer.exe"`
+    - **macOS**: `/Applications/PrusaSlicer.app/Contents/MacOS/PrusaSlicer`
+    - **Linux**: `/usr/bin/prusa-slicer`
+  - *Note*: If no Slicer CLI is detected, skip Slicer pass and perform the 100% verified OpenSCAD CSG Render Audit.
+
+---
+
+## 🔄 Execution Workflow & Render Loop
+
+When the user requests a 3D model:
+
+1. **Create Project Directory Structure**:
+   - Choose a concise project name (e.g. `soap-holder`).
+   - Write all output files into the models subfolder `models/<project_name>/gemini/`:
      ```
-   - Ergänze im Header der Datei eine kurze Nutzer-Prüf-Notiz, die der Nutzer nach dem manuellen Öffnen in OpenSCAD ausfüllen kann, z. B.:
+     models/
+     └── <project_name>/
+         └── gemini/       ← active agent output directory
+     ```
+
+2. **Generate Parametric Code (`model.scad`)**:
+   - Create `<project_folder>/gemini/model.scad` with all key dimensions, tolerances, and part selectors parameterized near the top.
+   - Use dynamic resolution via `$preview` for fast rendering:
      ```scad
+     $fn = $preview ? 32 : 64;
+     ```
+   - Standardize Render Mode Selector:
+     ```scad
+     /* [Render Mode & Part Selector] */
+     part = "all"; // ["all": Assembled View, "part1": Part 1 Only, "print_bed": Both Parts Flat on Z=0, "exploded": Exploded View]
+     ```
+   - Include header metadata:
+     ```scad
+     // AI Agent: openscad-designer (Gemini 3.6 Flash)
+     // Project: <project_folder>
+     // Date: YYYY-MM-DD
      // User Verification Checklist
      // - Geometry reviewed manually: [ ]
      // - Render checked in OpenSCAD: [ ]
      // - Printed successfully: [ ]
-     // - Notes: TBD
      ```
 
-3. **Multi-Winkel & Highlight-Vorschau rendern (Geometrie-Check):**
-   - Rendere das normale Modell:
-     - Isometrisch: `openscad --imgsize=800,600 --camera=0,0,0,60,0,315,200 -o <projekt-ordner>/preview_iso.png <projekt-ordner>/model.scad`
-     - Seite: `openscad --imgsize=800,600 --camera=0,0,0,90,0,90,200 -o <projekt-ordner>/preview_side.png <projekt-ordner>/model.scad`
+3. **Execute FDM Printability Audit**:
+   - Follow the 6 commandments in `.agents/skills/fdm-printability-auditor/SKILL.md`:
+     1. Multi-Axis Clearance (0.60–0.80mm sliding fit).
+     2. Z-Bound Safety ($Z \ge 0$).
+     3. 100% Flat Bed Contact.
+     4. Per-Part Optimal Orientation & Universal Disjointness Collision Audit (`part == "print_bed"`).
+     5. Annular Ring Subtractions.
+     6. Full-Pass Through-Holes.
 
-   - **Highlight-Pass für verdeckte Geometrie:**
-     - Um verdeckte/ineinander geschobene Objekte sichtbar zu machen, erstelle temporär eine Kopie `<projekt-ordner>/debug.scad` (oder nutze Parameter), in der wichtige Einzelkomponenten oder Aussparungen mit dem `#`-Modifier versehen sind.
-     - Rendere den Debug-Screenshot:
-       `openscad --imgsize=800,600 --camera=0,0,0,60,0,315,200 -o <projekt-ordner>/preview_debug.png <projekt-ordner>/debug.scad`
-     - Lösche `<projekt-ordner>/debug.scad` nach dem Render-Vorgang wieder.
-
-4. **Validierung (Geometrie, Überschneidungen & Physischer Kontakt):**
-   - Prüfe `preview_iso.png`, `preview_side.png` UND `preview_debug.png`.
-   - **Kritisch (Highlight-Check):**
-     - Schaue durch die rote Halbtransparenz in `preview_debug.png`.
-     - Verschwinden Teile ungewollt tief im Inneren eines anderen Objekts?
-     - Gibt es unbeabsichtigte Überschneidungen oder Hohlräume?
-     - Berühren sich Bauteile an der gewünschten Stelle mit minimaler Überlappung (`+ 0.1` mm gegen Z-Fighting)?
-   - Falls Geometriefehler vorliegen: Passe die Maße in `model.scad` an und wiederhole den Render-Loop!
-
-5. **Druckbett-Ausrichtung & Überhang-Analyse (Print-Check):**
-   - Erstelle ein Z-orientiertes Modul oder rotierte Vorschau, die das Modell **so flach wie möglich auf das Druckbett (Z=0)** legt.
-   - Rendere die Druckansicht von unten/schräg unten:
-     `openscad --imgsize=800,600 --camera=0,0,0,120,0,315,200 -o <projekt-ordner>/preview_print_bed.png <projekt-ordner>/model.scad`
-   - **Überhang-Bewertung:**
-     - Gibt es Überhänge über **45°**?
-     - Gibt es Brücken (Bridges), die zu lang sind?
-     - Benötigt das Modell Support? Falls ja: Lässt sich die Geometrie (z. B. durch 45°-Fasen/Chamfers unter Haken) so anpassen, dass es **supportfrei** druckbar wird?
-
-6. **Iterieren & Finale Generierung:**
-   - Optimiere das Modell basierend auf der Überhang-Bewertung.
-   - Generiere die finale STL-Datei:
-     `openscad -o <projekt-ordner>/model.stl <projekt-ordner>/model.scad`
-
-## Optionale Ausgaben
-
-**Dokumentation (optional):**
-   - Erstelle bei Bedarf im Modellordner eine Datei `<projekt-ordner>/README.md`.
-   - Falls du eine README-Datei erstellst, bietet sich folgende Struktur an:
-     - **Titel & Kurzbeschreibung**
-     - **Features**
-     - **Print Settings**
-     - **Customization (OpenSCAD Parameters)**
-     - **Hardware Required**
-   - Der folgende Footer ist ein optionaler Hinweis auf den Agenteneinsatz und kann verwendet werden, wo gewünscht:
-       ```markdown
-       ---
-       *This model was designed and visually validated using the **openscad-designer** AI Agent.*
-       ```
-
-**Aufwandsschätzung & Analyse (optional):**
-   - Verwende diese Phase nur, wenn du den Entwicklungsaufwand oder die Iterationskosten bewerten möchtest.
-   - Erfasse die Startzeit zu Beginn von Schritt 1 und die Endzeit nach Fertigstellung des Modells oder der optionalen Dokumentation.
-   - Berechne die Entwicklungsdauer in Sekunden (z. B. `execution_time_seconds: 42`).
-   - Schätze bei Bedarf die Token-/Prompt-Kosten basierend auf Eingabe-/Ausgabelänge und Iterationen, falls solche Informationen verfügbar sind.
-   - Speichere diese Daten zusammen mit dem ursprünglichen Auftragsprompt in einer separaten JSON-Datei, z. B. `<projekt-ordner>/model_log.json`.
-   - Ein sinnvolles JSON-Schema ist:
-     ```json
-     {
-       "date": "2026-07-27",
-       "prompt": "Erstelle mir eine Halterung für ein ESP32-Board mit M3 Schraublöchern.",
-       "start_time": "10:12:05",
-       "end_time": "10:14:18",
-       "execution_time_seconds": 133,
-       "iterations": 3,
-       "token_estimate": 420,
-       "notes": "Komplexität vor allem durch Kabelkanal und M3-Passung."
-     }
+4. **Multi-View Rendering & Historical Archiving**:
+   - Execute multi-view render script:
+     ```powershell
+     powershell -ExecutionPolicy Bypass -File ai/shared/scripts/render-scad.ps1 -InputFile <project_folder>/gemini/model.scad -MultiView -Iteration <N>
      ```
-   - Diese Auswertung soll nicht Teil der Pflichtausgaben sein und dient ausschließlich der internen Bewertung und Planung.
+   - Render print bed layout preview:
+     ```powershell
+     & "C:\Program Files\OpenSCAD\openscad.com" -D 'part="\"print_bed\""' --autocenter --viewall --imgsize=800,600 --camera=0,0,0,120,0,315,200 -o <project_folder>/gemini/model_preview_print_bed.png <project_folder>/gemini/model.scad
+     ```
+   - Perform cross-section debug render with `#` highlights if hidden internal geometry exists.
 
-## Best Practices für Druckbarkeit (FDM)
+5. **Visual Validation**:
+   - Inspect `model_preview_iso.png`, `model_preview_top.png`, `model_preview_print_bed.png`, and `model_preview_debug.png`.
+   - Verify zero collisions, 100% flat bed contact, self-supporting overhangs ($\le 45^\circ$), and $15\text{ mm}$ inter-part clearance gaps.
 
-- **45-Grad-Regel:** Nutze Fasen (`chamfer`) statt Radien an Unterseiten von Haken oder Überhängen, damit sie ohne Stützstruktur gedruckt werden können.
-- **Flache Auflagefläche:** Stelle sicher, dass die größte plane Fläche auf `Z = 0` liegt.
-- **Z-Fighting verhindern:** Nutze kleine Überlappungen (`+ 0.1`) bei `difference()`-Operationen.
-- **Manifold:** Geschlossene Geometrie sicherstellen.
+6. **Export Binary STL File**:
+   - Export printable STL with `-D 'part="\"print_bed\""'`:
+     ```powershell
+     & "C:\Program Files\OpenSCAD\openscad.com" -D 'part="\"print_bed\""' --export-format binstl -o <project_folder>/gemini/model.stl <project_folder>/gemini/model.scad
+     ```
+
+7. **PrusaSlicer CLI Empirical Validation**:
+   - Execute headless slicing on exported STL:
+     ```powershell
+     & "C:\Program Files\Tools\PrusaSlicer\prusa-slicer-console.exe" --export-gcode --info <project_folder>/gemini/model.stl
+     ```
+   - Parse `model.gcode` for `estimated printing time`, `filament used [cm3]`, `support_material = 0`, and `manifold = yes`.
+
+8. **Documentation & Logging**:
+   - **`model_log.json`**: Record prompt, execution time, iterations, and `"slicer_metrics"` object.
+   - **`README.md`**: Create human-readable summary with render previews, PrusaSlicer print metrics table, and recommended 3D print settings.
