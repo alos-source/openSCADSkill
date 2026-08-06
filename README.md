@@ -4,24 +4,24 @@ An advanced agent skill suite for **Google Antigravity** that designs, validates
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-- **🎨 Parametric 3D CAD Design**:
+- **Parametric 3D CAD Design**:
   - Writes clean, parameterized OpenSCAD code with native Customizer dropdown menus (`part`, `grip_pattern`, `d_size`).
   - Implements support-free FDM overhangs ($45^\circ$ chamfers) and multi-axis mating tolerances ($0.60\text{--}0.80\text{ mm}$).
-- **🛡 Automated FDM Printability Auditor (`fdm-printability-auditor`)**:
+- **Automated FDM Printability Auditor (`fdm-printability-auditor`)**:
   - Enforces the 6 FDM Audit Commandments (XYZ clearances, $Z \ge 0$, flat bed contact, anti-bridging cavity inversion, annular ring subtractions, through-holes).
   - Universal Boolean Part Collision & $15\text{ mm}$ Separation Gap Audit (`intersection() == empty`).
-- **🔪 Real-Time Slicer CLI Integration**:
+- **Real-Time Slicer CLI Integration**:
   - Headless execution with **PrusaSlicer CLI** / **OrcaSlicer CLI** to extract empirical print duration, filament mass, first-layer time, and 0% support volume confirmation.
   - Automatically records empirical print metrics in `model_log.json` and `README.md`.
-- **📸 Headless Multi-View Rendering & Archiving**:
+- **Headless Multi-View Rendering & Archiving**:
   - Generates multi-angle previews (`iso`, `side`, `top`, `bottom`, `print_bed`, `#debug section`) via OpenSCAD CLI.
   - Automatically archives iteration snapshots under `history/iter_N/`.
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```
 openSCADSkill/
@@ -43,15 +43,30 @@ openSCADSkill/
 
 ---
 
-## 🛠 System Requirements & Setup
+## System Requirements & Setup
 
 1. **OpenSCAD**: Installed and accessible in PATH or at `C:\Program Files\OpenSCAD\openscad.com`.
 2. **Slicer CLI (Optional for Empirical Metrics)**: PrusaSlicer CLI installed at `C:\Program Files\Tools\PrusaSlicer\prusa-slicer-console.exe` (or system PATH).
 3. **Installation**: Copy `.agents/` and `ai/` into your Antigravity workspace root.
 
+## Tested Runtime Environment
+
+This README and the included scripts were validated on:
+- `Windows 11`
+- `Google Antigravity`
+- `Cura` for STL preview and print-ready visualization
+
+> The code is intended to be portable and should work on other configurations that provide a compatible OpenSCAD installation, a PowerShell-capable shell, and a supported slicer CLI. If you use Linux, macOS, or a different slicer, verify your OpenSCAD path and adjust the script commands as needed.
+>
+> For agent-driven workflows, the same model generation and validation approach should work with other systems such as `Claude` or `GitHub Copilot`. When testing there, validate:
+> - prompt fidelity for OpenSCAD-specific instructions
+> - script execution environment and installed CLI paths
+> - local file placement under `.agents/` and `ai/shared/`
+> - whether preview/export commands need shell or path adjustments
+
 ---
 
-## 🚀 Usage Commands
+## Usage Commands
 
 Prompt Antigravity directly or use slash commands:
 
@@ -65,3 +80,16 @@ Prompt Antigravity directly or use slash commands:
 # Export binary STL for 3D printing
 /export-stl Export models/soap-holder/gemini/model.scad
 ```
+## Result Example
+Here's an example for the prompt:
+
+```
+design a Housing for ESP32-C3 Boards
+```
+
+The fully generated model.scad in OpenSCAD (in Exploded View):
+![OpenSCAD exploded view](media/OpenSCAD_Model.png)
+Parameters for customization on the right tab, model code on the left.
+
+The model.stl in CURA (ready to print):
+![CURA ready-to-print view](media/Cura_Model.png)
