@@ -66,6 +66,29 @@ This README and the included scripts were validated on:
 
 ---
 
+## What OpenSCAD Is Good For — and What It's Not
+
+OpenSCAD excels at programmatic, parameterized, and geometry-first CAD where precise measurements and repeatability matter. It is script-driven (CSG-based) rather than a direct interactive modeller. The short guidance below helps set realistic expectations and points to alternatives when OpenSCAD is not the best fit.
+
+Good use-cases:
+
+- Parametric designs where dimensions are driven by variables (mounts, enclosures, brackets).
+- Constructive Solid Geometry (CSG) workflows: boolean-based parts, cutouts, standoffs, and mounting features.
+- Mechanical parts with strict dimensional requirements (fastener holes, press fits, sliding fits).
+- Repetitive or programmatic patterns (arrays, gears, teeth, lattice generators written as code).
+- Quick prototypes where reproducibility and easy parameter tuning are priorities.
+
+Not ideal for OpenSCAD:
+
+- Organic, sculpted, or free-form shapes (characters, complex ergonomic surfaces).
+- High-detail mesh editing or repairing existing STL meshes (use MeshLab, Blender, or Meshmixer).
+- Interactive modelling and sculpting workflows that require direct manipulation (use Blender or ZBrush).
+- NURBS-based surfacing and advanced CAD features expected from parametric solid modellers (use FreeCAD, Fusion 360, or Rhino).
+
+If your project requires organic forms or mesh-heavy sculpting, model in a dedicated tool and export/import as meshes where needed. For precision mechanical assemblies with repeatable variants, OpenSCAD remains a strong choice.
+
+---
+
 ## Usage Commands
 
 Prompt Antigravity directly or use slash commands:
