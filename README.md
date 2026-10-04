@@ -17,16 +17,16 @@ An agent-driven skill suite for **OpenSCAD** parametric 3D model generation, FDM
 
 ```mermaid
 graph TD
-    A[User Prompt] --> B[/openscad-designer / bosl2 / enclosure]
-    B --> C[Parametric .scad Code]
-    C --> D[/preview-scad: Headless OpenSCAD CLI]
-    D --> E[Multi-Angle PNG Renders: Iso, Top, Side]
-    E --> F[/fdm-printability-auditor + Vision Inspection]
+    A["User Prompt"] --> B["/openscad-designer (Vanilla / BOSL2 / Enclosure)"]
+    B --> C["Parametric .scad Code"]
+    C --> D["/preview-scad (Headless OpenSCAD CLI)"]
+    D --> E["Multi-Angle PNG Renders (Iso, Top, Side)"]
+    E --> F["/fdm-printability-auditor + Vision Inspection"]
     C --> F
-    F --> G{Printable & Dimensionally Sound?}
+    F --> G{"Printable & Dimensionally Sound?"}
     G -- "No (Refactor)" --> B
-    G -- "Yes" --> H[/export-stl + Slicer CLI]
-    H --> I[Binary .stl & Slicer Metrics]
+    G -- "Yes" --> H["/export-stl + Slicer CLI"]
+    H --> I["Binary .stl & Slicer Metrics"]
 ```
 
 ---
