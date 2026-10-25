@@ -1,0 +1,20 @@
+{
+  "project": "hue-smart-button-v2-base",
+  "agent": "gemini",
+  "model_version": "Gemini 3.8 Flash",
+  "date": "2026-10-18",
+  "prompt": "Please create a model that can act as a base for the Philips Hue SmartButton (seconed version). It should have outer dimensions, that fit to germand light switches. There should be an option to include some ferromagnetic material, so the smartbutton can hold magentically.",
+  "iterations": 2,
+  "verification": {
+    "z_bound_safe": true,
+    "bed_contact_flat": true,
+    "multi_axis_clearance": true,
+    "support_free_overhangs": true,
+    "stl_exported": true
+  },
+  "slicer_metrics": {
+    "slicer_cli_detected": false,
+    "support_volume_mm3": 0.0,
+    "notes": "Parametric base for Philips Hue Smart Button Gen 2 (Ø45mm) supporting both standard German System 55 switch frames (55x55mm) and full DIN 49073 wall plates (80x80mm). Features an internal pause-at-layer pocket or front/rear cavity for DIN 9021 M8 steel washer or steel disc, plus ergonomic fingernail pry notches and bottom elephant-foot chamfers."
+  }
+}
